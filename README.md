@@ -22,6 +22,7 @@ A modern, professionally-designed personal website built with React, TypeScript,
 ### Installation
 
 1. Install dependencies:
+
    ```sh
    npm install
    ```
@@ -40,16 +41,19 @@ A modern, professionally-designed personal website built with React, TypeScript,
 ### Development
 
 **Frontend only:**
+
 ```sh
 npm start
 ```
 
 **Backend (Express server with OpenAI integration):**
+
 ```sh
 npm run server
 ```
 
 **Frontend + Backend together:**
+
 ```sh
 npm run dev:all
 ```
@@ -57,6 +61,7 @@ npm run dev:all
 ### Production
 
 Build for production:
+
 ```sh
 npm run build
 npm run preview  # preview locally
@@ -80,21 +85,22 @@ npm run preview  # preview locally
 
 ## Key Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `npm start` | Start Vite dev server |
-| `npm run server` | Start Express backend |
-| `npm run dev:all` | Start both frontend and backend |
-| `npm run build` | Production build |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format with Prettier |
+| Script              | Purpose                         |
+| ------------------- | ------------------------------- |
+| `npm start`         | Start Vite dev server           |
+| `npm run server`    | Start Express backend           |
+| `npm run dev:all`   | Start both frontend and backend |
+| `npm run build`     | Production build                |
+| `npm run typecheck` | Run TypeScript type checking    |
+| `npm run lint`      | Run ESLint                      |
+| `npm run format`    | Format with Prettier            |
 
 ## Configuration
 
 ### Environment Variables
 
 **Backend:**
+
 - `OPENAI_API_KEY` — OpenAI API key (required)
 - `CHAT_API_KEY` — Optional API key for the client in `x-api-key` header
 - `OPENAI_MODEL` — OpenAI model (default: `gpt-4o-mini`)
@@ -103,6 +109,7 @@ npm run preview  # preview locally
 - `CORS_ORIGIN` — Allowed origin(s) for CORS
 
 **Frontend:**
+
 - `VITE_CHAT_API_URL` — Chat API endpoint (default: `http://localhost:8787/api/chat`)
 - `VITE_CHAT_API_KEY` — Optional API key (must match `CHAT_API_KEY`)
 
@@ -119,6 +126,7 @@ Update [server/resume.md](server/resume.md) with your resume content. This is us
 - **CI/CD**: GitHub Actions workflow for testing, linting, and building
 
 To enable pre-commit hooks locally:
+
 ```sh
 npm run prepare
 ```
