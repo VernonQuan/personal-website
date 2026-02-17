@@ -1,0 +1,9 @@
+.not-found-link {
+  color: var(--accent-2);
+  text-decoration: underline;
+  transition: color 0.18s ease;
+}
+
+.not-found-link:hover {
+  color: var(--accent);
+}

@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start dev server",
+      "type": "shell",
+      "command": "npm start",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Build (production)",
+      "type": "shell",
+      "command": "npm run build",
+      "group": "build",
+      "presentation": { "reveal": "never" }
+    },
+    {
+      "label": "Typecheck (tsc)",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "group": "none",
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "Lint (eslint)",
+      "type": "shell",
+      "command": "npm run lint",
+      "group": "none",
+      "presentation": { "reveal": "silent" }
+    }
+  ]
+}

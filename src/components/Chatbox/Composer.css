@@ -1,0 +1,50 @@
+.composer {
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  border-radius: 15px;
+  padding: 4px;
+  width: 100%;
+  max-width: 750px;
+  border: 1px solid color-mix(in srgb, var(--muted) 25%, transparent);
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.composer-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 14px;
+  color: var(--text);
+}
+
+.composer-input::placeholder {
+  color: var(--muted);
+}
+
+.composer-send {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: var(--btn-text);
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  width: 80px;
+}
+
+.composer-send:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.composer-send:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}

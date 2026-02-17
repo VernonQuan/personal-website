@@ -1,0 +1,6 @@
+.venv/
+node_modules/
+.vite/
+dist/
+.vscode/.history
+.DS_Store

@@ -1,0 +1,149 @@
+:root {
+  /* Color palette */
+  --bg: #0f1720; /* dark navy */
+  --card: #0b1220;
+  --accent: #0ea5ff;
+  --accent-2: #60a5fa;
+  --muted: #94a3b8;
+  --text: #e6eef6;
+  --radius: 12px;
+
+  /* button text color (can differ depending on theme) */
+  --btn-text: #ffffff;
+  /* Layout */
+  --container-width: 960px;
+  --gutter: 2rem;
+  --bg2: #071b2a;
+  --bg-gradient: linear-gradient(180deg, #071029 0%, var(--bg2) 100%);
+}
+
+/* ------------------------------------
+  Reset / global
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg-gradient);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility container */
+.wrap {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: var(--gutter);
+}
+
+/* ------------------------------------
+   Content sections
+   ------------------------------------ */
+.section {
+  padding: 3rem 0;
+}
+
+/* ------------------------------------
+   Theme classes (applied on documentElement by ThemeToggle)
+   ------------------------------------ */
+/* Dark theme (default) */
+.theme-dark {
+  --bg: #071029;
+  --bg2: #071b2a;
+  --bg-gradient: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  --card: #0b1220;
+  --accent: #0ea5ff;
+  --accent-2: #60a5fa;
+  --muted: #94a3b8;
+  --text: #e6eef6;
+}
+
+/* Light theme */
+.theme-light {
+  --bg: #f8fafc;
+  --bg2: #eef2ff;
+  --bg-gradient: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  --card: #ffffff;
+  --accent: #075985;
+  --accent-2: #0ea5ff;
+  --muted: #64748b;
+  --text: #0f1720;
+}
+
+/* Smooth theme transitions */
+body,
+.wrap,
+.section {
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+/* Headings */
+h1,
+h2 {
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+}
+
+/* ------------------------------------
+   Responsive
+   ------------------------------------ */
+@media (min-width: 720px) {
+  h1 {
+    font-size: 3rem;
+  }
+}
+
+/* ------------------------------------
+   Utilities
+   ------------------------------------ */
+.muted {
+  color: var(--muted);
+}
+
+.gap {
+  gap: 12px;
+}
+
+.gap-sm {
+  gap: 6px;
+}
+
+.gap-md {
+  gap: 12px;
+}
+
+.gap-lg {
+  gap: 18px;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}

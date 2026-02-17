@@ -1,0 +1,27 @@
+.theme-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: var(--btn-text);
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+  margin: 0 4px;
+}
+
+.theme-toggle-button:hover {
+  transform: translateY(-1px);
+}
+
+.theme-toggle-button:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}

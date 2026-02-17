@@ -1,0 +1,7 @@
+.project-detail strong {
+  color: var(--accent-2);
+}
+
+.project-detail p {
+  max-width: 640px;
+}

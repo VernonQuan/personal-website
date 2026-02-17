@@ -1,0 +1,72 @@
+@keyframes slideInToRightFade {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInToLeftFade {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hero {
+  padding: 6rem 0 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.intro {
+  animation: slideInToRightFade 0.5s ease-out;
+}
+
+.lead {
+  animation: slideInToLeftFade 0.5s ease-out;
+}
+
+.hero .lead {
+  color: var(--muted);
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.home-section {
+  position: relative;
+  z-index: 1;
+}
+
+.home-cta {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: var(--btn-text);
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.home-cta:hover {
+  transform: translateY(-1px);
+}
+
+@media (min-width: 720px) {
+  .hero {
+    display: flex;
+    align-items: center;
+  }
+}

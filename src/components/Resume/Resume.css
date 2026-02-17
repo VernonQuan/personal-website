@@ -1,0 +1,97 @@
+/* Resume.css */
+
+.resume-page {
+  max-width: 64rem; /* ~ max-w-5xl */
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.resume-header {
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.resume-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.resume-preview {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+
+  /* Key part: give the container a real height */
+  height: calc(100vh - 260px);
+
+  /* Optional guard: keep it usable on small screens */
+  min-height: 700px;
+
+  /* If your page is inside a flex layout, this helps too */
+  width: calc(100% - 150px);
+}
+
+.resume-pdf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.resume-loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.resume-note {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  opacity: 0.85;
+}
+
+.download-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.download-icon:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.download-icon:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.theme-light .download-icon {
+  color: #0f1720;
+  border-color: rgba(15, 23, 42, 0.3);
+}
+
+.theme-light .download-icon:hover {
+  background: #075985;
+  border-color: #075985;
+}
+
+.resume-link {
+  text-decoration: underline;
+}
