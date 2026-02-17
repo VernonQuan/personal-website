@@ -1,3 +1,5 @@
+@import '../shared.css';
+
 .composer {
   display: flex;
   align-items: center;

@@ -1,24 +1,4 @@
-@keyframes slideInToRightFade {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInToLeftFade {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+@import '../shared.css';
 
 .hero {
   padding: 6rem 0 4rem;

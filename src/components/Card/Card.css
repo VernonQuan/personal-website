@@ -1,3 +1,5 @@
+@import '../shared.css';
+
 .card {
   max-width: 720px;
   padding: 24px 28px;

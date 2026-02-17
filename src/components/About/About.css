@@ -1,3 +1,5 @@
+@import '../shared.css';
+
 .about-link {
   color: var(--accent-2);
   text-decoration: underline;

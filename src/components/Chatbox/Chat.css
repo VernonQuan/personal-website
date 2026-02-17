@@ -1,3 +1,5 @@
+@import '../shared.css';
+
 .chatbox-open-btn {
   position: fixed;
   right: 24px;
