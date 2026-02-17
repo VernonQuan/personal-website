@@ -1,0 +1,52 @@
+# Render Blueprint for automatic deployment
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Backend API Server
+  - type: web
+    name: personal-website-api
+    runtime: node
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8787
+      - key: RESUME_PATH
+        value: ./resume.md
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_API_KEY
+        sync: false  # Must be set manually in Render dashboard
+      - key: CHAT_API_KEY
+        sync: false  # Optional, set manually if needed
+      - key: CORS_ORIGIN
+        value: https://vernonquan.dev,https://www.vernonquan.dev
+
+  # Frontend Static Site
+  - type: web
+    name: personal-website
+    runtime: static
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    envVars:
+      - key: VITE_CHAT_API_URL
+        value: https://api.vernonquan.dev/api/chat
+      - key: VITE_CHAT_API_KEY
+        sync: false  # Optional, set manually if needed

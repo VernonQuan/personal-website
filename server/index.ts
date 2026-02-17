@@ -128,6 +128,11 @@ app.post('/api/chat', async (req: Request<unknown, unknown, ChatRequestBody>, re
   }
 });
 
+// Health check endpoint
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.listen(port, () => {
   console.log(`Chat backend listening on http://localhost:${port}`);
 });
