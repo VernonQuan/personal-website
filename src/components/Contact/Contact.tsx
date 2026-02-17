@@ -1,6 +1,5 @@
 import React from 'react';
 import '@/components/shared.css';
-import './Contact.css';
 import { Card } from '../Card/Card';
 
 export default function Contact() {

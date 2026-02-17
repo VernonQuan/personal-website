@@ -47,10 +47,6 @@
   margin: 0;
 }
 
-.dialogue-close-btn {
-  /* Inherits btn-icon styles from shared.css - component markup applies both classes */
-}
-
 .dialogue-messages {
   flex: 1;
   padding: 12px 16px;
