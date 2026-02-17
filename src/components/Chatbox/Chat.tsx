@@ -40,9 +40,9 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
 
   const buildHistory = useCallback((snapshot: MessageProps[]) => {
     return snapshot
-      .filter((msg) => msg.role === 'user' || msg.role === 'assistant')
+      .filter(({ role }) => role === 'user' || role === 'assistant')
       .slice(-8)
-      .map((msg) => ({ role: msg.role, content: msg.content }));
+      .map(({ role, content }) => ({ role, content }));
   }, []);
 
   useEffect(() => {

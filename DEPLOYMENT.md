@@ -3,12 +3,14 @@
 ## Backend Setup on Render
 
 ### 1. Create Web Service
+
 1. Go to [Render Dashboard](https://dashboard.render.com/)
 2. Click **New +** → **Web Service**
 3. Connect your GitHub repository: `VernonQuan/personal-website`
 4. Configure the service:
 
 **Settings:**
+
 - **Name**: `personal-website-api` (or your preference)
 - **Region**: Choose closest to your users
 - **Branch**: `main`
@@ -19,6 +21,7 @@
 - **Instance Type**: Free tier is fine to start
 
 ### 2. Environment Variables
+
 Add these in Render dashboard under **Environment**:
 
 ```
@@ -30,11 +33,13 @@ CORS_ORIGIN=https://vernonquan.dev,https://www.vernonquan.dev
 ```
 
 **Optional:**
+
 ```
 CHAT_API_KEY=your_secret_key_here
 ```
 
 ### 3. Deploy
+
 - Click **Create Web Service**
 - Render will automatically deploy from GitHub
 - Your API URL will be: `https://personal-website-api.onrender.com` (or custom subdomain)
@@ -44,11 +49,13 @@ CHAT_API_KEY=your_secret_key_here
 ## Frontend Setup on Render (Static Site)
 
 ### 1. Create Static Site
+
 1. In Render Dashboard → **New +** → **Static Site**
 2. Connect the same GitHub repo
 3. Configure:
 
 **Settings:**
+
 - **Name**: `personal-website`
 - **Branch**: `main`
 - **Root Directory**: Leave empty (root)
@@ -56,6 +63,7 @@ CHAT_API_KEY=your_secret_key_here
 - **Publish Directory**: `dist`
 
 ### 2. Environment Variables
+
 Add in Render dashboard:
 
 ```
@@ -66,6 +74,7 @@ VITE_CHAT_API_KEY=your_secret_key_here
 ### 3. Custom Domain Setup
 
 #### For Frontend (vernonquan.dev):
+
 1. In your static site settings → **Custom Domains**
 2. Add both:
    - `vernonquan.dev`
@@ -73,6 +82,7 @@ VITE_CHAT_API_KEY=your_secret_key_here
 3. Add these DNS records at your domain registrar:
 
 **For root domain (vernonquan.dev):**
+
 ```
 Type: A
 Name: @
@@ -80,6 +90,7 @@ Value: 216.24.57.1
 ```
 
 **For www subdomain:**
+
 ```
 Type: CNAME
 Name: www
@@ -87,6 +98,7 @@ Value: <your-site-name>.onrender.com
 ```
 
 #### For Backend API (api.vernonquan.dev):
+
 1. In your web service settings → **Custom Domains**
 2. Add: `api.vernonquan.dev`
 3. Add DNS record:
@@ -98,11 +110,13 @@ Value: personal-website-api.onrender.com
 ```
 
 4. Update frontend env var:
+
 ```
 VITE_CHAT_API_URL=https://api.vernonquan.dev/api/chat
 ```
 
 And update backend CORS:
+
 ```
 CORS_ORIGIN=https://vernonquan.dev,https://www.vernonquan.dev
 ```
@@ -114,6 +128,7 @@ CORS_ORIGIN=https://vernonquan.dev,https://www.vernonquan.dev
 If you prefer Vercel or Netlify for the frontend:
 
 ### Vercel
+
 1. Go to [vercel.com](https://vercel.com)
 2. Import GitHub repo
 3. Configure:
@@ -124,6 +139,7 @@ If you prefer Vercel or Netlify for the frontend:
 5. Add custom domain in Vercel settings
 
 ### Netlify
+
 1. Go to [netlify.com](https://netlify.com)
 2. New site from Git → Select repo
 3. Configure:
@@ -150,6 +166,7 @@ If you prefer Vercel or Netlify for the frontend:
 ## Useful Commands
 
 **Test backend locally:**
+
 ```bash
 cd server
 npm install
@@ -157,13 +174,16 @@ npm start
 ```
 
 **Test frontend locally:**
+
 ```bash
 npm install
 npm start
 ```
 
 **Update environment variables:**
+
 - Changes to env vars in Render trigger automatic redeployment
 
 **Monitor logs:**
+
 - Go to Render Dashboard → Your Service → Logs tab

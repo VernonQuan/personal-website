@@ -23,9 +23,9 @@ services:
       - key: OPENAI_MODEL
         value: gpt-4o-mini
       - key: OPENAI_API_KEY
-        sync: false  # Must be set manually in Render dashboard
+        sync: false # Must be set manually in Render dashboard
       - key: CHAT_API_KEY
-        sync: false  # Optional, set manually if needed
+        sync: false # Optional, set manually if needed
       - key: CORS_ORIGIN
         value: https://vernonquan.dev,https://www.vernonquan.dev
 
@@ -49,4 +49,4 @@ services:
       - key: VITE_CHAT_API_URL
         value: https://api.vernonquan.dev/api/chat
       - key: VITE_CHAT_API_KEY
-        sync: false  # Optional, set manually if needed
+        sync: false # Optional, set manually if needed
