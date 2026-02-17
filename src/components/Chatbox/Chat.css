@@ -1,35 +1,12 @@
 @import '../shared.css';
 
 .chatbox-open-btn {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  border: none;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: var(--btn-text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   box-shadow:
     0 10px 25px rgba(0, 0, 0, 0.2),
     0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
   z-index: 50;
-}
-
-.chatbox-open-btn:hover {
-  transform: translateY(-2px);
-}
-
-.chatbox-open-btn:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 2px;
 }
 
 .dialogue {
@@ -71,20 +48,7 @@
 }
 
 .dialogue-close-btn {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition:
-    background-color 0.18s ease,
-    transform 0.18s ease;
-}
-
-.dialogue-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
+  /* Inherits btn-icon styles from shared.css - component markup applies both classes */
 }
 
 .dialogue-messages {

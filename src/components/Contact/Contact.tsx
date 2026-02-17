@@ -1,4 +1,5 @@
 import React from 'react';
+import '@/components/shared.css';
 import './Contact.css';
 import { Card } from '../Card/Card';
 
@@ -10,13 +11,13 @@ export default function Contact() {
         <h3>Vernon Quan</h3>
         <p>
           Email:{' '}
-          <a className="contact-link" href="mailto:vernonquan@gmail.com">
+          <a className="link-plain" href="mailto:vernonquan@gmail.com">
             vernonquan@gmail.com
           </a>
         </p>
         <p>
           <a
-            className="contact-link"
+            className="link-plain"
             href="https://www.linkedin.com/in/vernonquan"
             target="_blank"
             rel="noopener noreferrer"
@@ -26,7 +27,7 @@ export default function Contact() {
         </p>
         <p>
           <a
-            className="contact-link"
+            className="link-plain"
             href="https://github.com/vernonquan"
             target="_blank"
             rel="noopener noreferrer"
