@@ -147,3 +147,16 @@ h1 {
   display: flex;
   flex-direction: column;
 }
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suspense-spinner {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

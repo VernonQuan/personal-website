@@ -6,7 +6,7 @@ type LoadingSpinnerProps = {
 };
 export default function LoadingSpinner({ className = '', size = 40 }: LoadingSpinnerProps = {}) {
   return (
-    <div className={`flex justify-center items-center py-10 ${className}`}>
+    <div className={`loading-spinner ${className}`.trim()}>
       <ClipLoader size={size} color="#6ee7ff" />
     </div>
   );

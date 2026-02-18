@@ -13,7 +13,13 @@ const NotFound = lazy(() => import('./components/NotFound/NotFound'));
 
 export default function App() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense
+      fallback={
+        <div className="suspense-spinner">
+          <LoadingSpinner />
+        </div>
+      }
+    >
       <Routes>
         <Route path="/" element={<PageFrame />}>
           <Route index element={<Home />} />
