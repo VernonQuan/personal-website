@@ -5,9 +5,9 @@ module.exports = {
     extend: {
       colors: {
         accent: 'var(--accent)',
-        accent2: 'var(--accent-2)'
-      }
-    }
+        accent2: 'var(--accent-2)',
+      },
+    },
   },
-  plugins: []
-}
+  plugins: [],
+};
