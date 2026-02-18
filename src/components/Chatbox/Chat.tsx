@@ -31,19 +31,20 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
     { buttonText: 'Technologies', questionText: 'What technologies does Vernon work with?' },
   ];
 
-  const apiUrl = useMemo(() => {
-    return import.meta.env.VITE_CHAT_API_URL ?? 'http://localhost:8787/api/chat';
-  }, []);
-  const apiKey = useMemo(() => {
-    return import.meta.env.VITE_CHAT_API_KEY ?? '';
-  }, []);
+  const apiUrl = useMemo(
+    () => import.meta.env.VITE_CHAT_API_URL ?? 'http://localhost:8787/api/chat',
+    []
+  );
+  const apiKey = useMemo(() => import.meta.env.VITE_CHAT_API_KEY ?? '', []);
 
-  const buildHistory = useCallback((snapshot: MessageProps[]) => {
-    return snapshot
-      .filter(({ role }) => role === 'user' || role === 'assistant')
-      .slice(-8)
-      .map(({ role, content }) => ({ role, content }));
-  }, []);
+  const buildHistory = useCallback(
+    (snapshot: MessageProps[]) =>
+      snapshot
+        .filter(({ role }) => role === 'user' || role === 'assistant')
+        .slice(-8)
+        .map(({ role, content }) => ({ role, content })),
+    []
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
