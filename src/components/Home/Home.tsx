@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './Home.css';
 
 export default function Home() {
@@ -8,9 +9,9 @@ export default function Home() {
           <h1 className="intro">Hi — I am Vernon Quan</h1>
           <p className="lead">I build thoughtful, accessible websites and apps.</p>
           <p>
-            <a className="home-cta" href="#contact">
+            <Link className="home-cta" to="/contact">
               Get in touch
-            </a>
+            </Link>
           </p>
         </div>
       </section>
