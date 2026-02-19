@@ -145,7 +145,11 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
   return createPortal(
     <>
       {!isOpen ? (
-        <button onClick={() => setIsOpen(true)} className="chatbox-open-btn" aria-label="Open chat">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="chatbox-open-btn"
+          aria-label="Open chat window"
+        >
           <FiMessageSquare size={24} />
         </button>
       ) : (

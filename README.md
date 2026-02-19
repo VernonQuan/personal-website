@@ -11,6 +11,26 @@ A modern, professionally-designed personal website built with React, TypeScript,
 - **Production-ready** with ESLint, Prettier, and pre-commit hooks
 - **GitHub Actions CI/CD** for automated testing and builds
 - **Code splitting** with lazy-loaded pages for optimal performance
+- **Accessibility-first** with ARIA labels, semantic HTML, and motion preferences support
+
+## Accessibility
+
+This project prioritizes accessibility for all users, including those with disabilities:
+
+- **Semantic HTML** — Proper use of headings, nav, main, and other semantic elements
+- **ARIA labels** — Interactive elements have descriptive `aria-label` attributes
+- **Keyboard navigation** — All interactive elements are keyboard accessible with visible focus indicators
+- **Motion preferences** — Respects `prefers-reduced-motion` for users who are photosensitive
+- **Color contrast** — Light and dark themes meet WCAG AA contrast ratio requirements
+- **Screen reader support** — Decorative elements (particles) are hidden from screen readers with `aria-hidden`
+- **Form accessibility** — Inputs have proper labels and ARIA descriptions
+
+### Testing for Accessibility
+
+- Use browser DevTools to inspect ARIA attributes
+- Test with keyboard navigation (Tab, Enter, Escape)
+- Enable "Reduce motion" in your OS settings to test motion preferences
+- Use accessible color contrast checkers (e.g., WebAIM Contrast Checker)
 
 ## Quick Start
 

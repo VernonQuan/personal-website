@@ -14,6 +14,11 @@
     border-color 0.18s ease;
 }
 
+.composer:focus-within {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
 .composer-input {
   flex: 1;
   border: none;
@@ -22,6 +27,7 @@
   padding: 10px 14px;
   color: var(--text);
   font-size: 16px;
+  border-radius: 12px 0 0 12px;
 }
 
 .composer-input::placeholder {
@@ -30,7 +36,7 @@
 
 .composer-send {
   border: none;
-  border-radius: 10px;
+  border-radius: 0 12px 12px 0;
   padding: 8px 16px;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: var(--btn-text);
@@ -45,9 +51,4 @@
 
 .composer-send:hover {
   transform: translateY(-1px);
-}
-
-.composer-send:focus-visible {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 2px;
 }

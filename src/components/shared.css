@@ -85,10 +85,20 @@
   transform: translateY(-1px);
 }
 
-/* Focus visible for all buttons */
-button:focus-visible {
+/* Focus visible for all interactive elements */
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
+}
+
+/* Ensure text inputs have visible focus */
+input[type='text']:focus-visible,
+input[type='email']:focus-visible,
+input[type='password']:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
 }
 
 /* ------------------------------------

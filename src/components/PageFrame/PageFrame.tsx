@@ -13,7 +13,7 @@ export default function PageFrame() {
 
   return (
     <div>
-      <div id="tsparticles" className="particles-layer" />
+      <div id="tsparticles" className="particles-layer" aria-hidden="true" />
       <header className="site-header">
         <div className="wrap header-inner">
           <div className="header-left">

@@ -23,8 +23,14 @@ export function Composer({ onSubmit, disableSend, isLoading }: ComposerProps) {
         type="text"
         placeholder="Type your message..."
         autoFocus={shouldAutoFocus}
+        aria-label="Chat message input"
       />
-      <button className="composer-send" type="submit" disabled={disableSend || isLoading}>
+      <button
+        className="composer-send"
+        type="submit"
+        disabled={disableSend || isLoading}
+        aria-label={isLoading ? 'Sending message' : 'Send message'}
+      >
         {isLoading ? <LoadingSpinner size={16} /> : <FaPaperPlane size={16} />}
       </button>
     </form>
