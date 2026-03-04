@@ -32,7 +32,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
   ];
 
   const apiUrl = useMemo(
-    () => import.meta.env.VITE_CHAT_API_URL ?? 'http://localhost:8787/api/chat',
+    () => (import.meta.env.VITE_CHAT_API_URL ?? 'http://localhost:8787') + '/api/chat/stream',
     []
   );
   const apiKey = useMemo(() => import.meta.env.VITE_CHAT_API_KEY ?? '', []);
@@ -51,14 +51,16 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
   }, [messages, isOpen]);
 
   const requestAnswer = useCallback(
-    async (userMessageId: string, content: string, snapshot: MessageProps[]) => {
+    async (
+      assistantMessageId: string,
+      userMessageId: string,
+      content: string,
+      snapshot: MessageProps[]
+    ) => {
       const history = buildHistory(snapshot);
+      let isError = false;
+
       try {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === userMessageId ? { ...msg, status: 'sending', retry: undefined } : msg
-          )
-        );
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -68,38 +70,118 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
           body: JSON.stringify({ message: content, history }),
         });
 
-        const data = await response.json();
         if (!response.ok) {
+          isError = true;
+          const data = await response.json().catch(() => ({}));
           throw new Error(data?.error ?? 'Unable to reach the chat service.');
         }
 
+        if (!response.body) {
+          throw new Error('No response body from server.');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+
+          // Keep the last incomplete line in the buffer
+          buffer = lines[lines.length - 1];
+
+          for (let i = 0; i < lines.length - 1; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') {
+                // Stream complete
+              } else if (data.startsWith('{')) {
+                try {
+                  const chunk = JSON.parse(data);
+                  if (chunk.error) {
+                    isError = true;
+                    throw new Error(chunk.error);
+                  } else if (chunk.content) {
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === assistantMessageId
+                          ? { ...msg, content: msg.content + chunk.content }
+                          : msg
+                      )
+                    );
+                  }
+                } catch (e) {
+                  if (e instanceof Error && e.message.includes('JSON')) {
+                    // Ignore JSON parse errors
+                  } else {
+                    throw e;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Process any remaining buffer
+        if (buffer.trim().startsWith('data: ')) {
+          const data = buffer.trim().slice(6).trim();
+          if (data !== '[DONE]' && data.startsWith('{')) {
+            try {
+              const chunk = JSON.parse(data);
+              if (chunk.error) {
+                isError = true;
+                throw new Error(chunk.error);
+              } else if (chunk.content) {
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMessageId
+                      ? { ...msg, content: msg.content + chunk.content }
+                      : msg
+                  )
+                );
+              }
+            } catch (e) {
+              if (e instanceof Error && !e.message.includes('JSON')) {
+                throw e;
+              }
+            }
+          }
+        }
+
+        // Mark streaming as complete
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === userMessageId ? { ...msg, status: 'sent', retry: undefined } : msg
+            msg.id === assistantMessageId ? { ...msg, isStreaming: false, status: 'sent' } : msg
           )
         );
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            role: 'assistant',
-            content: data.reply ?? 'Sorry, I do not have a response right now.',
-            timestamp: Date.now(),
-          },
-        ]);
       } catch (error) {
         console.warn('Chat request failed.', error);
+        if (!isError) {
+          isError = true;
+        }
+        // Remove the partial assistant message
+        setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
+        // Restore the user message status to error
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === userMessageId
               ? {
                   ...msg,
                   status: 'error',
-                  retry: () => requestAnswer(userMessageId, content, prev),
+                  retry: () => requestAnswer(assistantMessageId, userMessageId, content, prev),
                 }
               : msg
           )
         );
+      } finally {
+        setWaitingForResponse(false);
       }
     },
     [apiKey, apiUrl, buildHistory]
@@ -112,6 +194,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       }
 
       const userMessageId = Date.now().toString();
+      const assistantMessageId = (Date.now() + 1).toString();
       const userMessage: MessageProps = {
         id: userMessageId,
         role: 'user',
@@ -119,11 +202,20 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
         timestamp: Date.now(),
         status: 'sending',
       };
-      setMessages((prev) => [...prev, userMessage]);
+      const assistantMessage: MessageProps = {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+        isStreaming: true,
+        status: 'sent',
+      };
+
+      const newMessages = [...messages, userMessage, assistantMessage];
+      setMessages(newMessages);
       setWaitingForResponse(true);
-      requestAnswer(userMessageId, message, [...messages, userMessage]).finally(() => {
-        setWaitingForResponse(false);
-      });
+
+      requestAnswer(assistantMessageId, userMessageId, message, newMessages);
     },
     [messages, requestAnswer, waitingForResponse]
   );
