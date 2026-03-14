@@ -44,6 +44,17 @@
   line-height: 1.5;
 }
 
+.chat-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.chat-link:hover {
+  opacity: 0.8;
+}
+
 .message-subtext {
   display: flex;
   justify-content: flex-end;

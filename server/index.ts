@@ -119,6 +119,7 @@ const buildSystemPrompt = (currentPath?: string) => {
     'Be concise, factual, and avoid guessing or inventing details.',
     'If asked for definitions or explanations of technical terms, provide brief answers without going into unnecessary detail.',
     'Try to keep the response brief and to the point, ideally under 50 words.',
+    'When sharing any URL or link, always write the full URL starting with https://. Never place a period, comma, or any other punctuation character directly after a URL.',
     'You can also help users find content on the website using the available destinations listed below.',
     'Return a valid JSON object with the exact shape {"message":"string","actions":[]} and no surrounding markdown.',
     'If the user asks where to find something on the site, answer briefly, recommend the best destination, and end the message with exactly: "Would you like me to lead you there?"',

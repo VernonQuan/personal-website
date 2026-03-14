@@ -16,24 +16,48 @@ export type MessageProps = {
   isStreaming?: boolean;
 };
 
+const inlinePattern = /\*\*(.+?)\*\*|(https?:\/\/[^\s<>"']+)/g;
+
+function renderInlineSegment(raw: string, index: number): ReactNode {
+  if (/^https?:\/\//.test(raw)) {
+    let display = raw;
+    try {
+      const u = new URL(raw);
+      display = u.hostname + (u.pathname !== '/' ? u.pathname : '');
+    } catch {
+      // leave as-is
+    }
+    return (
+      <a
+        key={`link-${index}`}
+        href={raw}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="chat-link"
+      >
+        {display}
+      </a>
+    );
+  }
+  return <strong key={`bold-${index}`}>{raw.replace(/^\*\*|\*\*$/g, '')}</strong>;
+}
+
 function renderSafeBoldMarkdown(text: string) {
-  const boldPattern = /\*\*(.+?)\*\*/g;
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
-  let match = boldPattern.exec(text);
+  let match = inlinePattern.exec(text);
 
   while (match) {
-    const [fullMatch, boldText] = match;
     const matchStart = match.index;
-    const matchEnd = matchStart + fullMatch.length;
+    const matchEnd = matchStart + match[0].length;
 
     if (matchStart > lastIndex) {
       nodes.push(text.slice(lastIndex, matchStart));
     }
 
-    nodes.push(<strong key={`bold-${matchStart}-${matchEnd}`}>{boldText}</strong>);
+    nodes.push(renderInlineSegment(match[0], matchStart));
     lastIndex = matchEnd;
-    match = boldPattern.exec(text);
+    match = inlinePattern.exec(text);
   }
 
   if (lastIndex < text.length) {
