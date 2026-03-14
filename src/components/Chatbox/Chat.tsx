@@ -155,11 +155,19 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
           }
         }
 
-        // Mark streaming as complete
+        // Mark the assistant response complete and update the user message as delivered.
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId ? { ...msg, isStreaming: false, status: 'sent' } : msg
-          )
+          prev.map((msg) => {
+            if (msg.id === assistantMessageId) {
+              return { ...msg, isStreaming: false };
+            }
+
+            if (msg.id === userMessageId) {
+              return { ...msg, status: 'sent', retry: undefined };
+            }
+
+            return msg;
+          })
         );
       } catch (error) {
         console.warn('Chat request failed.', error);
@@ -208,7 +216,6 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
         content: '',
         timestamp: Date.now(),
         isStreaming: true,
-        status: 'sent',
       };
 
       const newMessages = [...messages, userMessage, assistantMessage];

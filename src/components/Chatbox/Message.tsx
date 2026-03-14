@@ -68,16 +68,18 @@ export function Message({
     return renderSafeBoldMarkdown(content);
   };
 
+  const showStatus = role === 'user' && status;
+
   return (
     <div className={`message ${role} ${status}${isStreaming ? ' streaming' : ''}`} key={id}>
       <div className="message-bubble">
         <div className="message-text">{displayContent()}</div>
         <div className="message-subtext">
           <span className="timestamp">{getTimeFromTimestamp(timestamp)}</span>
-          <span className="status">
-            {status === 'sending' && <FaCheck size={12} className="muted" />}
-            {status === 'sent' && <FaCheckDouble size={12} className="muted" />}
-            {status === 'error' && !isStreaming && (
+          <span className="status" aria-hidden={!showStatus}>
+            {showStatus === 'sending' && <FaCheck size={12} className="muted" />}
+            {showStatus === 'sent' && <FaCheckDouble size={12} className="muted" />}
+            {showStatus === 'error' && !isStreaming && (
               <FaTimesCircle size={12} className="error pointer" onClick={retry} />
             )}
           </span>
