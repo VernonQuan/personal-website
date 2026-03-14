@@ -1,7 +1,16 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FiMessageSquare, FiX } from 'react-icons/fi';
 import { Message, MessageProps } from '@/components/Chatbox/Message';
+import {
+  ChatAction,
+  getActionConfirmationMessage,
+  isAffirmativeMessage,
+  isActionAvailable,
+  isChatAction,
+  isNegativeMessage,
+} from '@/components/Chatbox/actions';
 import { Composer } from '@/components/Chatbox/Composer';
 import { Option } from '@/components/Chatbox/Option';
 
@@ -23,8 +32,11 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       timestamp: Date.now(),
     },
   ]);
+  const [pendingAction, setPendingAction] = useState<ChatAction | null>(null);
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const defaultQuestions = [
     { buttonText: 'About Vernon', questionText: 'What can you tell me about Vernon?' },
     { buttonText: 'Work History', questionText: 'What is Vernon’s work history?' },
@@ -50,6 +62,45 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
+  useEffect(() => {
+    if (pendingAction?.type === 'navigate' && pendingAction.target === location.pathname) {
+      setPendingAction(null);
+    }
+  }, [location.pathname, pendingAction]);
+
+  const executeAction = useCallback(
+    (action: ChatAction) => {
+      switch (action.type) {
+        case 'navigate':
+          if (location.pathname !== action.target) {
+            navigate(action.target);
+          }
+          break;
+      }
+    },
+    [location.pathname, navigate]
+  );
+
+  const appendLocalExchange = useCallback((userContent: string, assistantContent: string) => {
+    const timestamp = Date.now();
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: timestamp.toString(),
+        role: 'user',
+        content: userContent,
+        timestamp,
+        status: 'sent',
+      },
+      {
+        id: (timestamp + 1).toString(),
+        role: 'assistant',
+        content: assistantContent,
+        timestamp: timestamp + 1,
+      },
+    ]);
+  }, []);
+
   const requestAnswer = useCallback(
     async (
       assistantMessageId: string,
@@ -58,7 +109,38 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       snapshot: MessageProps[]
     ) => {
       const history = buildHistory(snapshot);
+      let responseActions: ChatAction[] = [];
       let isError = false;
+
+      const applyStreamChunk = (chunk: unknown) => {
+        if (typeof chunk !== 'object' || chunk === null) {
+          return;
+        }
+
+        const event = chunk as {
+          error?: string;
+          type?: string;
+          content?: string;
+          actions?: unknown[];
+        };
+
+        if (event.error) {
+          isError = true;
+          throw new Error(event.error);
+        }
+
+        if (Array.isArray(event.actions) && (event.type === 'actions' || !event.type)) {
+          responseActions = event.actions.filter(isChatAction).filter(isActionAvailable);
+        }
+
+        if (typeof event.content === 'string' && (event.type === 'content' || !event.type)) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, content: msg.content + event.content } : msg
+            )
+          );
+        }
+      };
 
       try {
         const response = await fetch(apiUrl, {
@@ -67,7 +149,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
             'Content-Type': 'application/json',
             ...(apiKey ? { 'x-api-key': apiKey } : {}),
           },
-          body: JSON.stringify({ message: content, history }),
+          body: JSON.stringify({ message: content, history, currentPath: location.pathname }),
         });
 
         if (!response.ok) {
@@ -104,19 +186,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
                 // Stream complete
               } else if (data.startsWith('{')) {
                 try {
-                  const chunk = JSON.parse(data);
-                  if (chunk.error) {
-                    isError = true;
-                    throw new Error(chunk.error);
-                  } else if (chunk.content) {
-                    setMessages((prev) =>
-                      prev.map((msg) =>
-                        msg.id === assistantMessageId
-                          ? { ...msg, content: msg.content + chunk.content }
-                          : msg
-                      )
-                    );
-                  }
+                  applyStreamChunk(JSON.parse(data));
                 } catch (e) {
                   if (e instanceof Error && e.message.includes('JSON')) {
                     // Ignore JSON parse errors
@@ -134,19 +204,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
           const data = buffer.trim().slice(6).trim();
           if (data !== '[DONE]' && data.startsWith('{')) {
             try {
-              const chunk = JSON.parse(data);
-              if (chunk.error) {
-                isError = true;
-                throw new Error(chunk.error);
-              } else if (chunk.content) {
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantMessageId
-                      ? { ...msg, content: msg.content + chunk.content }
-                      : msg
-                  )
-                );
-              }
+              applyStreamChunk(JSON.parse(data));
             } catch (e) {
               if (e instanceof Error && !e.message.includes('JSON')) {
                 throw e;
@@ -169,6 +227,13 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
             return msg;
           })
         );
+
+        const suggestedAction =
+          responseActions.find((action) => action.requiresConfirmation) ?? null;
+        const immediateActions = responseActions.filter((action) => !action.requiresConfirmation);
+
+        setPendingAction(suggestedAction);
+        immediateActions.forEach(executeAction);
       } catch (error) {
         console.warn('Chat request failed.', error);
         if (!isError) {
@@ -192,13 +257,35 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
         setWaitingForResponse(false);
       }
     },
-    [apiKey, apiUrl, buildHistory]
+    [apiKey, apiUrl, buildHistory, executeAction, location.pathname]
   );
 
   const onSendMessage = useCallback(
     (message: string) => {
-      if (!message.trim() || waitingForResponse) {
+      const trimmedMessage = message.trim();
+
+      if (!trimmedMessage || waitingForResponse) {
         return;
+      }
+
+      if (pendingAction && isAffirmativeMessage(trimmedMessage)) {
+        appendLocalExchange(trimmedMessage, getActionConfirmationMessage(pendingAction));
+        executeAction(pendingAction);
+        setPendingAction(null);
+        return;
+      }
+
+      if (pendingAction && isNegativeMessage(trimmedMessage)) {
+        appendLocalExchange(
+          trimmedMessage,
+          'Okay. Let me know if you would like help finding something else.'
+        );
+        setPendingAction(null);
+        return;
+      }
+
+      if (pendingAction) {
+        setPendingAction(null);
       }
 
       const userMessageId = Date.now().toString();
@@ -206,7 +293,7 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       const userMessage: MessageProps = {
         id: userMessageId,
         role: 'user',
-        content: message,
+        content: trimmedMessage,
         timestamp: Date.now(),
         status: 'sending',
       };
@@ -222,9 +309,9 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       setMessages(newMessages);
       setWaitingForResponse(true);
 
-      requestAnswer(assistantMessageId, userMessageId, message, newMessages);
+      requestAnswer(assistantMessageId, userMessageId, trimmedMessage, newMessages);
     },
-    [messages, requestAnswer, waitingForResponse]
+    [appendLocalExchange, executeAction, messages, pendingAction, requestAnswer, waitingForResponse]
   );
 
   const onSubmit = useCallback(

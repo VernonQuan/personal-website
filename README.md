@@ -7,7 +7,7 @@ A modern, professionally-designed personal website built with React, TypeScript,
 - **Fast development experience** with Vite and TypeScript
 - **Responsive, accessible design** with Tailwind CSS
 - **Dark/light theme toggle** with localStorage persistence
-- **AI-powered chatbot** that answers questions about your resume
+- **AI-powered chatbot** that answers questions about your resume and can suggest or trigger in-site navigation
 - **Production-ready** with ESLint, Prettier, and pre-commit hooks
 - **GitHub Actions CI/CD** for automated testing and builds
 - **Code splitting** with lazy-loaded pages for optimal performance
@@ -55,7 +55,8 @@ This project prioritizes accessibility for all users, including those with disab
    PORT=8787
    RESUME_PATH=./server/resume.md
    CORS_ORIGIN=http://localhost:5173
-   VITE_CHAT_API_URL=http://localhost:8787/api/chat
+   VITE_CHAT_API_URL=http://localhost:8787
+   VITE_APP_ENV=development
    ```
 
 ### Development
@@ -100,6 +101,7 @@ npm run preview  # preview locally
 
 - **Express server** that acts as a relay to OpenAI
 - **Context injection** from resume.md for relevant responses
+- **Structured chat actions** that let the assistant suggest or trigger client-side navigation
 - **CORS support** for cross-origin requests
 - **API key validation** for optional authentication
 
@@ -132,6 +134,7 @@ npm run preview  # preview locally
 
 - `VITE_CHAT_API_URL` — Chat API endpoint (default: `http://localhost:8787/api/chat`)
 - `VITE_CHAT_API_KEY` — Optional API key (must match `CHAT_API_KEY`)
+- `VITE_APP_ENV` — Set to `development` to expose development-only pages such as Projects in the nav and chat actions
 
 ### Resume Context
 
