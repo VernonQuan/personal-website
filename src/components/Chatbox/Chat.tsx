@@ -35,8 +35,10 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
   const [pendingAction, setPendingAction] = useState<ChatAction | null>(null);
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigationTimeoutRef = useRef<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const mobileNavDelayMs = 180;
   const defaultQuestions = [
     { buttonText: 'About Vernon', questionText: 'What can you tell me about Vernon?' },
     { buttonText: 'Work History', questionText: 'What is Vernon’s work history?' },
@@ -62,6 +64,15 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
+  useEffect(
+    () => () => {
+      if (navigationTimeoutRef.current !== null) {
+        window.clearTimeout(navigationTimeoutRef.current);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (pendingAction?.type === 'navigate' && pendingAction.target === location.pathname) {
       setPendingAction(null);
@@ -73,12 +84,30 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       switch (action.type) {
         case 'navigate':
           if (location.pathname !== action.target) {
+            const isMobileViewport =
+              typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches;
+
+            if (isMobileViewport && isOpen) {
+              setIsOpen(false);
+
+              if (navigationTimeoutRef.current !== null) {
+                window.clearTimeout(navigationTimeoutRef.current);
+              }
+
+              navigationTimeoutRef.current = window.setTimeout(() => {
+                navigate(action.target);
+                navigationTimeoutRef.current = null;
+              }, mobileNavDelayMs);
+
+              return;
+            }
+
             navigate(action.target);
           }
           break;
       }
     },
-    [location.pathname, navigate]
+    [isOpen, location.pathname, mobileNavDelayMs, navigate]
   );
 
   const appendLocalExchange = useCallback((userContent: string, assistantContent: string) => {
