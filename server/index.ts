@@ -44,9 +44,58 @@ const siteDestinations = allSiteDestinations.filter(
   ({ path: targetPath }) => targetPath !== '/projects' || !isProduction
 );
 
+const allHighlightTargets = [
+  {
+    target: 'nav-about',
+    label: 'About navigation button',
+    description: 'About page button in the primary nav.',
+  },
+  {
+    target: 'nav-resume',
+    label: 'Resume navigation button',
+    description: 'Resume page button in the primary nav.',
+  },
+  {
+    target: 'nav-projects',
+    label: 'Projects navigation button',
+    description: 'Projects page button in the primary nav.',
+  },
+  {
+    target: 'nav-contact',
+    label: 'Contact navigation button',
+    description: 'Contact page button in the primary nav.',
+  },
+  {
+    target: 'social-github',
+    label: 'GitHub button',
+    description: 'GitHub social link in header actions.',
+  },
+  {
+    target: 'social-linkedin',
+    label: 'LinkedIn button',
+    description: 'LinkedIn social link in header actions.',
+  },
+  {
+    target: 'theme-toggle',
+    label: 'Theme toggle button',
+    description: 'Theme switch button in header actions.',
+  },
+  {
+    target: 'resume-download',
+    label: 'Resume download button',
+    description: 'Download button on the resume page.',
+  },
+] as const;
+
+const highlightTargets = allHighlightTargets.filter(
+  ({ target }) => target !== 'nav-projects' || !isProduction
+);
+
 const allowedNavigationTargets = new Set<string>(
   siteDestinations.map(({ path: targetPath }) => targetPath)
 );
+const allowedHighlightTargets = new Set<string>(highlightTargets.map(({ target }) => target));
+const actionTargets = [...allowedNavigationTargets, ...allowedHighlightTargets];
 
 const chatResponseSchema = {
   name: 'chat_response',
@@ -68,11 +117,11 @@ const chatResponseSchema = {
           properties: {
             type: {
               type: 'string',
-              enum: ['navigate'],
+              enum: ['navigate', 'highlight'],
             },
             target: {
               type: 'string',
-              enum: siteDestinations.map(({ path: targetPath }) => targetPath),
+              enum: actionTargets,
             },
             label: {
               type: 'string',
@@ -113,6 +162,9 @@ const buildSystemPrompt = (currentPath?: string) => {
   const destinationsSummary = siteDestinations
     .map(({ path: targetPath, label, description }) => `- ${label} (${targetPath}): ${description}`)
     .join('\n');
+  const highlightSummary = highlightTargets
+    .map(({ target, label, description }) => `- ${label} (${target}): ${description}`)
+    .join('\n');
 
   return [
     "You are a helpful assistant for questions about Vernon Quan's professional history, projects, and resume.",
@@ -122,8 +174,10 @@ const buildSystemPrompt = (currentPath?: string) => {
     'Try to keep the response brief and to the point, ideally under 50 words.',
     'When sharing any URL or link, always write the full URL starting with https://. Never place a period, comma, or any other punctuation character directly after a URL.',
     'You can also help users find content on the website using the available destinations listed below.',
+    'You can guide users to UI controls by returning a highlight action for a specific available highlight target.',
     'Return a valid JSON object with the exact shape {"message":"string","actions":[]} and no surrounding markdown.',
     'If the user asks where to find something on the site, answer briefly, recommend the best destination, and end the message with exactly: "Would you like me to lead you there?"',
+    'When the user asks where or how to use a visible control (for example theme toggle, social links, nav links, resume download), include a highlight action with requiresConfirmation set to false.',
     'If the user explicitly asks you to take, lead, navigate, bring, or send them to a page, return a navigate action with requiresConfirmation set to false and a short confirmation message.',
     'When you recommend a destination without navigating yet, return a navigate action with requiresConfirmation set to true.',
     'If no action is needed, return an empty actions array.',
@@ -133,6 +187,9 @@ const buildSystemPrompt = (currentPath?: string) => {
     '',
     'AVAILABLE DESTINATIONS:',
     destinationsSummary,
+    '',
+    'AVAILABLE HIGHLIGHT TARGETS:',
+    highlightSummary,
     '',
     `CURRENT PAGE: ${currentPath || '/'}`,
     '',
@@ -154,9 +211,19 @@ type ChatAction = {
   reason: string;
 };
 
+type HighlightAction = {
+  type: 'highlight';
+  target: string;
+  label: string;
+  requiresConfirmation: boolean;
+  reason: string;
+};
+
+type AnyChatAction = ChatAction | HighlightAction;
+
 type ChatResponsePayload = {
   message: string;
-  actions: ChatAction[];
+  actions: AnyChatAction[];
 };
 
 type ChatRequestBody = {
@@ -168,7 +235,7 @@ type ChatRequestBody = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
-const normalizeChatAction = (value: unknown): ChatAction | null => {
+const normalizeChatAction = (value: unknown): AnyChatAction | null => {
   if (!isRecord(value)) {
     return null;
   }
@@ -180,13 +247,23 @@ const normalizeChatAction = (value: unknown): ChatAction | null => {
   const reason = value.reason;
 
   if (
-    type !== 'navigate' ||
     typeof target !== 'string' ||
-    !allowedNavigationTargets.has(target) ||
     typeof label !== 'string' ||
     typeof requiresConfirmation !== 'boolean' ||
     typeof reason !== 'string'
   ) {
+    return null;
+  }
+
+  if (type === 'navigate' && !allowedNavigationTargets.has(target)) {
+    return null;
+  }
+
+  if (type === 'highlight' && !allowedHighlightTargets.has(target)) {
+    return null;
+  }
+
+  if (type !== 'navigate' && type !== 'highlight') {
     return null;
   }
 
@@ -211,7 +288,7 @@ const normalizeChatResponse = (value: unknown): ChatResponsePayload => {
   const actions = Array.isArray(value.actions)
     ? value.actions
         .map(normalizeChatAction)
-        .filter((action): action is ChatAction => action !== null)
+        .filter((action): action is AnyChatAction => action !== null)
     : [];
 
   return {
@@ -257,6 +334,13 @@ const requestStructuredChatResponse = async (
   history?: HistoryItem[],
   currentPath?: string
 ) => {
+  const baseRequest = {
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    messages: buildInputMessages(message, history, currentPath),
+    temperature: 0.2,
+    max_tokens: 400,
+  };
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -264,10 +348,7 @@ const requestStructuredChatResponse = async (
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      messages: buildInputMessages(message, history, currentPath),
-      temperature: 0.2,
-      max_tokens: 400,
+      ...baseRequest,
       response_format: {
         type: 'json_schema',
         json_schema: chatResponseSchema,
@@ -277,7 +358,23 @@ const requestStructuredChatResponse = async (
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data?.error?.message || 'OpenAI request failed.');
+    // Fallback keeps chat available if structured output is rejected by the model/API.
+    const fallbackResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(baseRequest),
+    });
+
+    const fallbackData = await fallbackResponse.json();
+    if (!fallbackResponse.ok) {
+      throw new Error(fallbackData?.error?.message || data?.error?.message || 'OpenAI request failed.');
+    }
+
+    const fallbackReply = fallbackData?.choices?.[0]?.message?.content;
+    return normalizeChatResponse({ message: String(fallbackReply || ''), actions: [] });
   }
 
   const rawContent = data?.choices?.[0]?.message?.content;

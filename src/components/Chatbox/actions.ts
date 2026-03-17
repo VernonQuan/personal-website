@@ -8,7 +8,15 @@ export type NavigateAction = {
   reason: string;
 };
 
-export type ChatAction = NavigateAction;
+export type HighlightAction = {
+  type: 'highlight';
+  target: string;
+  label: string;
+  requiresConfirmation: boolean;
+  reason: string;
+};
+
+export type ChatAction = NavigateAction | HighlightAction;
 
 const affirmativePattern =
   /^(?:yes|yeah|yep|sure|ok|okay|please|go ahead|do it|sounds good|take me there|lead me there|show me|navigate there|let'?s go|yes please)$/i;
@@ -22,7 +30,7 @@ export const isChatAction = (value: unknown): value is ChatAction => {
 
   const candidate = value as Record<string, unknown>;
   return (
-    candidate.type === 'navigate' &&
+    (candidate.type === 'navigate' || candidate.type === 'highlight') &&
     typeof candidate.target === 'string' &&
     typeof candidate.label === 'string' &&
     typeof candidate.requiresConfirmation === 'boolean' &&
@@ -38,6 +46,11 @@ export const isActionAvailable = (action: ChatAction) => {
   switch (action.type) {
     case 'navigate':
       return isPathEnabled(action.target);
+    case 'highlight':
+      if (typeof document === 'undefined') {
+        return false;
+      }
+      return document.querySelector(`[data-nux-id="${action.target}"]`) !== null;
   }
 };
 
@@ -45,5 +58,7 @@ export const getActionConfirmationMessage = (action: ChatAction) => {
   switch (action.type) {
     case 'navigate':
       return `Taking you to ${action.label} now.`;
+    case 'highlight':
+      return `I highlighted ${action.label} for you.`;
   }
 };

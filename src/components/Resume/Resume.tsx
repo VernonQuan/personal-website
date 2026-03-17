@@ -10,7 +10,7 @@ export default function Resume() {
     <main className="resume-page">
       <div className="resume-header flex-row">
         <h1 className="resume-title">Resume</h1>
-        <a href="/resume.pdf" className="download-icon" download>
+        <a href="/resume.pdf" className="download-icon" data-nux-id="resume-download" download>
           <FiDownload size={20} />
         </a>
       </div>

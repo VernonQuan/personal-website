@@ -10,6 +10,7 @@ export default function ThemeToggle() {
       aria-label="Toggle theme"
       title="Toggle theme"
       className="theme-toggle-button"
+      data-nux-id="theme-toggle"
       onClick={toggleTheme}
     >
       {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}

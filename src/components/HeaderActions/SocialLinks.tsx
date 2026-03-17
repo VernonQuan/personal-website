@@ -9,6 +9,7 @@ export function GithubLink({ size = 18 }: { size?: number }) {
       target="_blank"
       rel="noopener noreferrer"
       className="social-link github-link"
+      data-nux-id="social-github"
       aria-label="GitHub"
     >
       <FiGithub size={size} />
@@ -23,6 +24,7 @@ export function LinkedInLink({ size = 18 }: { size?: number }) {
       target="_blank"
       rel="noopener noreferrer"
       className="social-link linkedin-link"
+      data-nux-id="social-linkedin"
       aria-label="LinkedIn"
     >
       <FiLinkedin size={size} />

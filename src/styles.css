@@ -173,3 +173,24 @@ h1 {
   align-items: center;
   justify-content: center;
 }
+
+.nux-highlight-flash {
+  animation: nux-highlight-pulse 2.2s ease-in-out 1;
+}
+
+@keyframes nux-highlight-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+  }
+  35% {
+    box-shadow:
+      0 0 0 2px rgba(168, 85, 247, 0.9),
+      0 0 16px 2px rgba(168, 85, 247, 0.45);
+  }
+  65% {
+    box-shadow:
+      0 0 0 2px rgba(168, 85, 247, 0.75),
+      0 0 10px 1px rgba(168, 85, 247, 0.3);
+  }
+}

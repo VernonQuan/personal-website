@@ -10,7 +10,9 @@ export default function Nav() {
       <ul className="nav">
         {filteredPages.map(({ name, path, label }) => (
           <li key={name}>
-            <Link to={path}>{label}</Link>
+            <Link to={path} data-nux-id={`nav-${name}`}>
+              {label}
+            </Link>
           </li>
         ))}
       </ul>

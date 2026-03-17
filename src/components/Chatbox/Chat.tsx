@@ -36,9 +36,12 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigationTimeoutRef = useRef<number | null>(null);
+  const highlightTimeoutRefs = useRef<number[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const mobileNavDelayMs = 180;
+  const mobileHighlightDelayMs = 140;
+  const highlightDurationMs = 2200;
   const defaultQuestions = [
     { buttonText: 'About Vernon', questionText: 'What can you tell me about Vernon?' },
     { buttonText: 'Work History', questionText: 'What is Vernon’s work history?' },
@@ -69,8 +72,41 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
       if (navigationTimeoutRef.current !== null) {
         window.clearTimeout(navigationTimeoutRef.current);
       }
+
+      if (highlightTimeoutRefs.current.length > 0) {
+        highlightTimeoutRefs.current.forEach((timeout) => window.clearTimeout(timeout));
+      }
     },
     []
+  );
+
+  const triggerHighlight = useCallback(
+    (targetId: string) => {
+      if (typeof document === 'undefined') {
+        return;
+      }
+
+      const elements = Array.from(
+        document.querySelectorAll<HTMLElement>(`[data-nux-id="${targetId}"]`)
+      );
+
+      if (!elements.length) {
+        return;
+      }
+
+      for (const element of elements) {
+        element.classList.remove('nux-highlight-flash');
+        // Restart animation when the same control is highlighted repeatedly.
+        void element.offsetWidth;
+        element.classList.add('nux-highlight-flash');
+
+        const timeout = window.setTimeout(() => {
+          element.classList.remove('nux-highlight-flash');
+        }, highlightDurationMs);
+        highlightTimeoutRefs.current.push(timeout);
+      }
+    },
+    [highlightDurationMs]
   );
 
   useEffect(() => {
@@ -105,9 +141,25 @@ export function Chat({ defaultMessage, openByDefault }: ChatProps) {
             navigate(action.target);
           }
           break;
+        case 'highlight': {
+          const isMobileViewport =
+            typeof window !== 'undefined' && window.matchMedia('(max-width: 720px)').matches;
+
+          if (isMobileViewport && isOpen) {
+            setIsOpen(false);
+            const timeout = window.setTimeout(() => {
+              triggerHighlight(action.target);
+            }, mobileHighlightDelayMs);
+            highlightTimeoutRefs.current.push(timeout);
+            return;
+          }
+
+          triggerHighlight(action.target);
+          break;
+        }
       }
     },
-    [isOpen, location.pathname, mobileNavDelayMs, navigate]
+    [isOpen, location.pathname, mobileHighlightDelayMs, mobileNavDelayMs, navigate, triggerHighlight]
   );
 
   const appendLocalExchange = useCallback((userContent: string, assistantContent: string) => {
