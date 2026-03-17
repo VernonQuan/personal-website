@@ -8,6 +8,7 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
+const streamCharDelayMs = Number(process.env.STREAM_CHAR_DELAY_MS || 12);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -248,6 +249,8 @@ const buildInputMessages = (message: string, history?: HistoryItem[], currentPat
   return input;
 };
 
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 const requestStructuredChatResponse = async (
   apiKey: string,
   message: string,
@@ -341,6 +344,9 @@ app.post(
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    if (typeof res.flushHeaders === 'function') {
+      res.flushHeaders();
+    }
 
     try {
       const chatResponse = await requestStructuredChatResponse(
@@ -352,6 +358,9 @@ app.post(
 
       for (const char of chatResponse.message) {
         res.write(`data: ${JSON.stringify({ type: 'content', content: char })}\n\n`);
+        if (streamCharDelayMs > 0) {
+          await sleep(streamCharDelayMs);
+        }
       }
 
       if (chatResponse.actions.length > 0) {
